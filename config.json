@@ -1,0 +1,30 @@
+{
+  "updated": "2026-10-19",
+  "peers": [
+    {"code": "513100", "market": "sh", "name": "纳指ETF国泰",    "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": "老牌，额度紧张"},
+    {"code": "513300", "market": "sh", "name": "纳斯达克ETF华夏", "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": "离岸人民币结算"},
+    {"code": "513390", "market": "sh", "name": "纳指100ETF博时",  "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": ""},
+    {"code": "513870", "market": "sh", "name": "纳指ETF富国",     "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": ""},
+    {"code": "513110", "market": "sh", "name": "纳指ETF华泰柏瑞", "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": ""},
+    {"code": "159941", "market": "sz", "name": "纳指ETF广发",     "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": ""},
+    {"code": "159632", "market": "sz", "name": "纳斯达克ETF华安", "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": ""},
+    {"code": "159659", "market": "sz", "name": "纳斯达克100ETF招商", "pos": 0.95, "type": "ETF", "enabled": true, "limit": null, "note": ""},
+    {"code": "159660", "market": "sz", "name": "纳指ETF汇添富",   "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": ""},
+    {"code": "159696", "market": "sz", "name": "纳指ETF易方达",   "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": ""},
+    {"code": "159501", "market": "sz", "name": "纳指ETF嘉实",     "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": ""},
+    {"code": "159513", "market": "sz", "name": "纳斯达克100ETF大成", "pos": 0.95, "type": "ETF", "enabled": true, "limit": null, "note": ""},
+    {"code": "161130", "market": "sz", "name": "纳斯达克100LOF",  "pos": 0.95, "type": "LOF", "enabled": true,  "limit": null, "note": "场内有对应联接基金"},
+    {"code": "159509", "market": "sz", "name": "纳指科技ETF景顺", "pos": 0.95, "type": "ETF", "enabled": true,  "limit": null, "note": "高弹性，溢价可到30%+"},
+    {"code": "161128", "market": "sz", "name": "标普信息科技LOF", "pos": 0.90, "type": "LOF", "enabled": true,  "limit": null, "note": "仓位约90%，可杠杆补10%纳指"},
+    {"code": "501312", "market": "sh", "name": "海外科技LOF",     "pos": 0.95, "type": "LOF", "enabled": true,  "limit": null, "note": ""},
+    {"code": "501225", "market": "sh", "name": "全球芯片LOF",     "pos": 0.95, "type": "LOF", "enabled": false, "limit": null, "note": "炒作时溢价极高，可选"}
+  ],
+  "settings": {
+    "benchmark": "core13",
+    "core_codes": ["513100", "513300", "513390", "513870", "513110", "159941", "159632",
+                   "159659", "159660", "159696", "159501", "159513"],
+    "hedge_premium_trigger": 0.09,
+    "hedge_spread_trigger": 0.02,
+    "history_days": 120
+  }
+}

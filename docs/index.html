@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<title>纳指溢价工作台</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#151b24; --panel2:#1b232e; --line:#232c38;
+    --txt:#e6edf3; --dim:#8b98a9; --up:#ff5d5d; --down:#22c55e;
+    --accent:#4d9fff; --warn:#ffb020; --good:#2dd4bf;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--txt);overflow-x:hidden;
+       font:15px/1.45 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+       padding-bottom:env(safe-area-inset-bottom)}
+  header{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.94);
+         backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+         padding:10px 14px calc(10px + env(safe-area-inset-top))}
+  .title{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .title h1{font-size:16px;margin:0;font-weight:600;letter-spacing:.5px}
+  .stamp{font-size:11px;color:var(--dim);text-align:right}
+  .stamp b{color:var(--good);font-weight:500}
+  .stamp.stale b{color:var(--warn)}
+  .chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .chip{font-size:12px;padding:3px 9px;border-radius:20px;background:var(--panel2);
+        border:1px solid var(--line);color:var(--dim);white-space:nowrap}
+  .chip b{color:var(--txt);font-weight:600;margin-left:4px}
+  .hero{display:flex;align-items:flex-end;gap:10px;margin-top:10px}
+  .hero .big{font-size:30px;font-weight:700;line-height:1;letter-spacing:-.5px}
+  .hero .lbl{font-size:11px;color:var(--dim);margin-bottom:3px}
+  .banner{margin-top:10px;padding:9px 11px;border-radius:10px;font-size:12.5px;line-height:1.5;
+          background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.35);color:#ffcf80}
+  .tabs{display:flex;gap:8px;padding:10px 14px 4px}
+  .tab{font-size:12.5px;padding:5px 12px;border-radius:8px;background:var(--panel2);
+       border:1px solid var(--line);color:var(--dim)}
+  .tab.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .hint{font-size:11px;color:var(--dim);padding:0 14px 6px}
+  .row{display:flex;gap:10px;align-items:center;
+       padding:11px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .row:active{background:var(--panel2)}
+  .left{flex:1 1 auto;min-width:0}
+  .right{flex:0 0 auto;text-align:right}
+  .n1{font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .code{font-size:11px;color:var(--dim);font-weight:400}
+  .sig{font-size:10.5px;padding:1px 6px;border-radius:5px;font-weight:600}
+  .sig.buy{background:rgba(45,212,191,.16);color:var(--good);border:1px solid rgba(45,212,191,.4)}
+  .sig.rich{background:rgba(255,176,32,.14);color:var(--warn);border:1px solid rgba(255,176,32,.4)}
+  .sig.watch{background:rgba(139,152,169,.12);color:var(--dim);border:1px solid var(--line)}
+  .prem{font-size:20px;font-weight:700;text-align:right;line-height:1.15;letter-spacing:-.3px}
+  .prem small{font-size:10px;font-weight:400;color:var(--dim);margin-left:2px}
+  .premsub{font-size:11px;color:var(--dim);margin-top:3px;white-space:nowrap}
+  .n2{font-size:12px;color:var(--dim);display:flex;gap:8px;flex-wrap:wrap;
+      align-items:center;margin-top:2px}
+  .n2 b{font-weight:600}
+  .n3{display:flex;gap:8px;align-items:center;margin-top:6px;font-size:11px;color:var(--dim)}
+  .bar{position:relative;height:4px;border-radius:3px;background:var(--line);flex:1;min-width:40px}
+  .bar i{position:absolute;top:0;bottom:0;left:0;border-radius:3px;background:linear-gradient(90deg,#2dd4bf,#ffb020)}
+  .up{color:var(--up)} .down{color:var(--down)} .mono{font-variant-numeric:tabular-nums}
+  .sheet{position:fixed;inset:0;z-index:50;background:rgba(5,8,12,.72);display:none}
+  .sheet.on{display:block}
+  .card{position:absolute;left:0;right:0;bottom:0;max-height:86vh;overflow:auto;
+        background:var(--panel);border-radius:18px 18px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));
+        border-top:1px solid var(--line)}
+  .card h2{margin:0 0 2px;font-size:17px}
+  .card .sub{font-size:12px;color:var(--dim);margin-bottom:12px}
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .kv div{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+  .kv span{display:block;font-size:11px;color:var(--dim);margin-bottom:2px}
+  .kv b{font-size:14px;font-weight:600}
+  .close{position:absolute;right:14px;top:12px;font-size:20px;color:var(--dim);padding:4px 8px}
+  footer{padding:14px;text-align:center;font-size:11px;color:var(--dim);line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <div class="title">
+    <h1>纳指溢价工作台</h1>
+    <div class="stamp" id="stamp"></div>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="hero">
+    <div class="big mono" id="avgPrem">-</div>
+    <div class="lbl">只纳指100 ETF 平均溢价<br><span id="avgSpread"></span></div>
+  </div>
+  <div id="banner"></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" data-sort="score">推荐度</div>
+  <div class="tab" data-sort="premium">溢价率↑</div>
+  <div class="tab" data-sort="rs">相对弱势↑</div>
+  <div class="tab" data-set="all">全部品种</div>
+</div>
+<div class="hint" id="hint">点任意一行看溢价走势</div>
+
+<main id="list"></main>
+<footer>数据源：腾讯行情 / 天天基金 / 新浪财经　·　估算净值＝最新净值×(1+仓位×指数涨跌)，忽略汇率<br>仅供个人研究，不构成投资建议</footer>
+
+<div class="sheet" id="sheet"><div class="card" id="card"></div></div>
+
+<script src="data.js"></script>
+<script>
+const D = window.__PREMIUM_DATA__;
+const $ = s => document.querySelector(s);
+const pct = (x, d = 2) => (x * 100).toFixed(d) + '%';
+const sgn = x => (x > 0 ? '+' : '') + pct(x);
+const cls = x => (x > 0 ? 'up' : x < 0 ? 'down' : '');
+let sortKey = 'score', showAll = false;
+
+function renderHeader() {
+  const m = D.meta, idx = m.index;
+  const t = new Date(m.updated.replace(/-/g, '/'));
+  const mins = (Date.now() - t.getTime()) / 60000;
+  const d = new Date(), hm = d.getHours() * 100 + d.getMinutes();
+  const wd = d.getDay();
+  const session = wd >= 1 && wd <= 5 && ((hm >= 915 && hm <= 1135) || (hm >= 1255 && hm <= 1505));
+  const stale = session && mins > 45;
+  $('#stamp').className = 'stamp' + (stale ? ' stale' : '');
+  const state = stale ? '数据已 ' + Math.round(mins) + ' 分钟未更新'
+              : session ? '盘中实时' : '非交易时段 · 收盘数据';
+  $('#stamp').innerHTML = `${m.updated_cn.slice(5)} 周${m.weekday} 更新<br><b>${state}</b>`;
+  $('#chips').innerHTML = `
+    <div class="chip">纳指100<b class="${cls(idx.ndx_pct)}">${idx.ndx_price.toFixed(0)} ${sgn(idx.ndx_pct)}</b></div>
+    <div class="chip">纳指期货<b class="${cls(idx.nq_pct)}">${sgn(idx.nq_pct)}</b></div>
+    <div class="chip">口径<b>${idx.source}</b></div>`;
+  $('#avgPrem').textContent = pct(m.avg_premium);
+  $('#avgPrem').className = 'big mono ' + (m.avg_premium >= 0.09 ? 'up' : '');
+  $('#avgSpread').textContent = `20日均 ${pct(m.avg_mean20)}　距均值 ${sgn(m.spread_avg)}`;
+
+  const h = m.hedge;
+  $('#banner').innerHTML = h
+    ? `<div class="banner">⚠ 对冲窗口：平均溢价 ${pct(h.avg_premium)}，高于20日均值 ${sgn(h.spread)}。
+       当前最贵 ${h.top.map(x => x.name.replace('ETF', '') + ' ' + pct(x.premium, 1)).join('、')}</div>`
+    : '';
+}
+
+function render() {
+  let funds = D.funds.filter(f => f.ok);
+  if (!showAll) funds = funds.filter(f => f.core);
+  funds.sort((a, b) => sortKey === 'score' ? b.score - a.score
+    : sortKey === 'premium' ? b.premium - a.premium
+    : a.rs_20d - b.rs_20d);
+
+  $('#list').innerHTML = funds.map(f => {
+    const s = f.signal === '买入候选' ? 'buy' : f.signal === '偏贵/可换出' ? 'rich' : 'watch';
+    return `<div class="row" data-code="${f.code}">
+      <div class="left">
+        <div class="n1">${f.name}<span class="sig ${s}">${f.signal}</span></div>
+        <div class="n2"><span class="mono">${f.code}</span>
+          <span class="mono">${f.price.toFixed(3)}</span>
+          <span class="mono ${cls(f.pct)}">${sgn(f.pct)}</span>
+          <span>距均值 <b class="mono ${cls(f.spread20)}">${sgn(f.spread20)}</b></span></div>
+        <div class="n3"><div class="bar"><i style="width:${Math.max(3, Math.min(100, f.pct60 * 100))}%;background:${f.pct60 >= 0.7 ? '#ff5d5d' : f.pct60 >= 0.4 ? '#ffb020' : '#2dd4bf'}"></i></div>
+          <span>分位 ${Math.round(f.pct60 * 100)}%</span></div>
+      </div>
+      <div class="right">
+        <div class="prem mono ${f.premium >= 0.09 ? 'up' : ''}">${pct(f.premium)}</div>
+        <div class="premsub">年内 <b class="${cls(f.ret_ytd)}">${sgn(f.ret_ytd, 1)}</b></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.row').forEach(el =>
+    el.onclick = () => openSheet(el.dataset.code));
+}
+
+function chart(hist) {
+  const w = 320, h = 110, pad = 6;
+  const vals = hist.map(x => x.premium);
+  const lo = Math.min(...vals), hi = Math.max(...vals), span = (hi - lo) || 0.01;
+  const x = i => pad + i * (w - 2 * pad) / (hist.length - 1 || 1);
+  const y = v => h - pad - (v - lo) / span * (h - 2 * pad);
+  const pts = hist.map((d, i) => `${x(i).toFixed(1)},${y(d.premium).toFixed(1)}`).join(' ');
+  const last = hist[hist.length - 1];
+  const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" style="overflow:visible">
+    <line x1="0" y1="${y(mean)}" x2="${w}" y2="${y(mean)}" stroke="#3b4757" stroke-dasharray="3 3" stroke-width="1"/>
+    <polyline points="${pts}" fill="none" stroke="#4d9fff" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="${x(hist.length - 1)}" cy="${y(last.premium)}" r="3.2" fill="#2dd4bf"/>
+    <text x="0" y="${y(mean) - 3}" fill="#8b98a9" font-size="8">均值 ${pct(mean, 1)}</text>
+  </svg>`;
+}
+
+function chartIntraday(bars) {
+  if (!bars || bars.length < 3) return '';
+  const w = 320, h = 70, pad = 6;
+  const vals = bars.map(x => x.v);
+  const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  const span = (hi - lo) || 0.01;
+  const x = i => pad + i * (w - 2 * pad) / (bars.length - 1);
+  const y = v => h - pad - (v - lo) / span * (h - 2 * pad);
+  const pts = bars.map((d, i) => `${x(i).toFixed(1)},${y(d.v).toFixed(1)}`).join(' ');
+  const last = bars[bars.length - 1];
+  return `<div class="sub" style="margin:10px 0 2px">今日 15 分钟走势（相对昨收 ${sgn(last.v)}）</div>
+  <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}">
+    <line x1="0" y1="${y(0)}" x2="${w}" y2="${y(0)}" stroke="#3b4757" stroke-width="1"/>
+    <polyline points="${pts}" fill="none" stroke="#ffb020" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="${x(bars.length - 1)}" cy="${y(last.v)}" r="3" fill="#ffb020"/>
+  </svg>`;
+}
+
+function openSheet(code) {
+  const f = D.funds.find(x => x.code === code);
+  if (!f) return;
+  const hist = f.history.slice(-90);
+  $('#card').innerHTML = `<div class="close" onclick="closeSheet()">×</div>
+    <h2>${f.name}</h2>
+    <div class="sub">${f.code} · ${f.type} · 仓位 ${(f.pos * 100).toFixed(0)}%
+      ${f.limit ? ' · 限购 ' + f.limit : ''}</div>
+    ${chart(hist)}
+    ${chartIntraday(f.intraday)}
+    <div class="kv">
+      <div><span>现价 / 今日</span><b class="mono ${cls(f.pct)}">${f.price.toFixed(3)} ${sgn(f.pct)}</b></div>
+      <div><span>当前溢价</span><b class="mono">${pct(f.premium)}</b></div>
+      <div><span>估算净值</span><b class="mono">${f.est_nav.toFixed(4)}</b></div>
+      <div><span>最新净值 (${f.nav_date.slice(5)})</span><b class="mono">${f.nav.toFixed(4)}</b></div>
+      <div><span>20日均溢价</span><b class="mono">${pct(f.mean20)}</b></div>
+      <div><span>距20日均</span><b class="mono ${cls(f.spread20)}">${sgn(f.spread20)}</b></div>
+      <div><span>60日分位</span><b class="mono">${Math.round(f.pct60 * 100)}%</b></div>
+      <div><span>距全体均值</span><b class="mono ${cls(f.dev)}">${sgn(f.dev)}</b></div>
+      <div><span>年内涨幅</span><b class="mono ${cls(f.ret_ytd)}">${sgn(f.ret_ytd, 1)}</b></div>
+      <div><span>近20日超额</span><b class="mono ${cls(f.rs_20d)}">${sgn(f.rs_20d)}</b></div>
+      <div><span>成交额</span><b class="mono">${(f.amount / 1e8).toFixed(2)} 亿</b></div>
+      <div><span>推荐分</span><b class="mono">${f.score.toFixed(2)}</b></div>
+    </div>
+    <div class="sub">${f.note || ''}</div>`;
+  $('#sheet').classList.add('on');
+}
+function closeSheet() { $('#sheet').classList.remove('on'); }
+$('#sheet').onclick = e => { if (e.target.id === 'sheet') closeSheet(); };
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  if (t.dataset.sort) {
+    sortKey = t.dataset.sort;
+    document.querySelectorAll('.tab[data-sort]').forEach(x => x.classList.toggle('on', x === t));
+  } else if (t.dataset.set) {
+    showAll = !showAll;
+    t.classList.toggle('on', showAll);
+    t.textContent = showAll ? '仅核心12只' : '全部品种';
+  }
+  render();
+});
+
+renderHeader(); render();
+
+// 支持 ?c=513100 直接打开某只基金的详情（方便推送直达）
+const deep = new URLSearchParams(location.search).get('c');
+if (deep) openSheet(deep);
+
+// 交易时段每 5 分钟自动刷新
+(function autoReload() {
+  const now = new Date(), hm = now.getHours() * 100 + now.getMinutes();
+  const trading = now.getDay() >= 1 && now.getDay() <= 5 &&
+                  ((hm >= 915 && hm <= 1135) || (hm >= 1255 && hm <= 1505));
+  if (trading) setTimeout(() => location.reload(), 300000);
+})();
+</script>
+</body>
+</html>
